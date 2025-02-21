@@ -1,4 +1,5 @@
 from flask import Flask
+from markupsafe import escape
 from d0220chatgpt_sample import chat_with_chatgpt
 
 """
@@ -17,7 +18,16 @@ def hello_world():
     return "<p>Hello, World!</p>"
 
 
-@app.route("/home/<user_message>")                 #若要使用其他的網頁，要在網址上打上 "/home(名稱)"   # 每次增加要用 "/" 隔開
+@app.route("/test/<int:user_id>/")                     
+def hello_user(user_id):
+    return f"<p>Hello, USER-{user_id}, world!</p>"
+
+@app.route("/test/<path:subpath>/")                     
+def hello_path(subpath):
+    return f"<p>Hello, PATH-{escape(subpath)}, world!</p>"
+
+
+@app.route("/home/<user_message>/")                 #若要使用其他的網頁，要在網址上打上 "/home(名稱)"   # 每次增加要用 "/" 隔開
 def hello_home(user_message):                      #可以在網址後面 "/" 再做詢問
     chatgpt_response = chat_with_chatgpt(
         user_message=user_message,                  
