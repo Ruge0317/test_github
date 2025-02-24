@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from markupsafe import escape
 from d0220chatgpt_sample import chat_with_chatgpt
 
@@ -22,6 +22,7 @@ def hello_world():
 def hello_user(user_id):
     return f"<p>Hello, USER-{user_id}, world!</p>"
 
+# 路徑
 @app.route("/test/<path:subpath>/")                     
 def hello_path(subpath):
     return f"<p>Hello, PATH-{escape(subpath)}, world!</p>"
@@ -35,6 +36,16 @@ def hello_home(user_message):                      #可以在網址後面 "/" �
     )
     return chatgpt_response
 
+
+@app.route("/sample/")                     
+def show_html_sample():
+    return render_template(
+        'sample.html', 
+        name="tony",
+        numbers=[11, 22, 33, 44, 55],
+        pairs=[('A', 1), ('B', 2), ('C', 3)],
+        dict_data={'A': 1, 'B': 2, 'C': 3}
+    )
 
 
 ## 如果要使用 python xxx.py 執行

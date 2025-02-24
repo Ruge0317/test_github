@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡單的HTML表單</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        input, button { margin: 10px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <!-- jinja2 模擬引擎 -->
+    {% if name %}
+        <p> 我的名字是: {{ name }} </p>
+    {% endif %}
+
+    <h3>Get numbers</h3>
+    {% for number in number %}
+        <p> Get number : {{ number }} </p>
+    {% endif %}
+
+    <h3>Get pairs</h3>
+    {% for alpha, number in pairs %}
+        <p> Get pairs : {{ alpha }}, {{ number }} </p>
+    {% endif %}
+
+    <h3>Get dictionary</h3>
+    {% for key, value in dict_data.items() %}
+        <p> Get dictionary : {{ key }}, {{ value }} </p>
+    {% endif %}
+
+    {% for key in dict_data %}
+        <p>  Get value with key : {{ dict_data[key] }} </p>
+    {% endif %}
+
+
+    <h2>輸入你的資訊</h2>
+    <input type="text" id="name" placeholder="請輸入你的名字" value="{{ name }}">
+    <br>
+    <button onclick="submitForm()">提交</button>
+    <button onclick="clearForm()">清除</button>
+    
+    <script>
+        function submitForm() {
+            alert("已提交: " + document.getElementById("name").value);
+        }
+        function clearForm() {
+            document.getElementById("name").value = "";
+        }
+    </script>
+</body>
+</html>
