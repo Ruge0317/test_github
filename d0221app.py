@@ -19,8 +19,11 @@ from linebot.v3.webhooks import (
 )
 
 
+
 import os
 
+# my tools
+from d0220chatgpt_sample import chat_with_chatgpt
 
 app = Flask(__name__)
 
@@ -58,7 +61,12 @@ def handle_message(event):
             ReplyMessageRequest(
                 reply_token=event.reply_token,
                 messages=[
-                    TextMessage(text=event.message.text)         #這邊是要回復給使用者的內容
+                    #這邊是要回復給使用者的內容，學使用者講話
+                    TextMessage(text=chat_with_chatgpt(
+                        user_message=event.message.text,
+                        system_prompt="回應二十字以內"
+                    )
+                    )         
                 ]    
             )
         )
