@@ -35,7 +35,7 @@ time.sleep(2)
 
 start_date = 'February 21, 2025'                                                    #輸入日期
 driver.find_element(
-    By.XPATH, f"//span[@class='flatpickr-day' and @aria-label='{start_date}']").click() 
+    By.XPATH, f"//span[(@class='flatpickr-day' or @class='flatpickr-day today selected') and @aria-label='{start_date}']").click()
 
 while True:
     ## 驗證碼 (captcha)
@@ -89,7 +89,7 @@ for idx, train in enumerate(trains_info):
         行駛時間={train['duration']} | \
         {train['depart_time']} -> \
         {train['arrival_time']}")                                       # \ 是為了能夠串接下一行的代碼
-which_train = int(input("選擇您的車次。請輸入數字 0~9: "))         #輸入 "數字" 選擇要選的車次
+which_train = int(input("選擇您的車次。請輸入數字 0~9: "))                #輸入 "數字" 選擇要選的車次
 trains_info[which_train]['radio_box'].click()                           #點選頁面的按鈕 
 
 

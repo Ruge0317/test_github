@@ -5,8 +5,14 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select  # 下拉式選單使用
 from selenium.common.exceptions import NoSuchElementException  # Handle exception
-from d0219ocr_component import get_captcha_code
 
+# Project modules
+from d0219ocr_component import get_captcha_code
+from d0224booking_info_extraction_flow import (
+    ask_booking_infomation,
+    ask_missing_infomation,
+    convert_date_to_thsr_format
+)
 
 def create_driver():
     options = webdriver.ChromeOptions()  # 創立 driver物件所需的參數物件
@@ -39,9 +45,12 @@ def booking_with_info(start_station, dest_station, start_time, start_date):
     # Choose Booking parameters: date
     driver.find_element(
         By.XPATH, "//input[@class='uk-input' and @readonly='readonly']").click()
-
+    
+    # Choose Booking date: 包含今天與其他天
     driver.find_element(
-        By.XPATH, f"//span[@class='flatpickr-day' and @aria-label='{start_date}']").click()
+        By.XPATH,
+        f"//span[(@class='flatpickr-day' or @class='flatpickr-day today selected') and @aria-label='{start_date}']"
+    ).click()
 
     while True:
         # captcha
@@ -95,9 +104,11 @@ def booking_with_info(start_station, dest_station, start_time, start_date):
     return trains_info
 
 
-def select_train_and_submit_booking(trains_info):
+def select_train_and_submit_booking(trains_info, which_train=None):
 
-    which_train = int(input("Choose your train. Enter from 0~9: "))
+    if which_train is None:
+        # 如果沒有選擇車次，則由使用者選擇(一般程式的執行流程，採用CMD輸入)
+        which_train = int(input("選擇您的車次。請輸入數字 0~9: "))
     trains_info[which_train]['radio_box'].click()
 
     # Submit booking requests
@@ -108,6 +119,15 @@ def select_train_and_submit_booking(trains_info):
     # 第三個頁面
     #
     # Check booking infomation for user
+    print("確認訂票: ")
+    print(
+        f"車次: {trains_info[which_train]['train_code']} | \
+        行駛時間: {trains_info[which_train]['duration']} | \
+        {trains_info[which_train]['depart_time']}   -> \
+        {trains_info[which_train]['arrival_time']}"
+    )
+
+    print('您的車票共 ', driver.find_element(By.ID, 'TotalPrice').text, " 元")
     driver.find_element(
         By.CLASS_NAME, 'ticket-summary').screenshot('thsr_summary.png')
 
@@ -138,7 +158,7 @@ def select_train_and_submit_booking(trains_info):
         By.CLASS_NAME, 'ticket-summary').screenshot(screenshot_filename)
     print("訂票完成!")
 
-    return
+    return screenshot_filename
 
 
 if __name__ == "__main__":
@@ -151,12 +171,25 @@ if __name__ == "__main__":
 
     create_driver()
 
-    # Step 1, 2
-    trains_info = booking_with_info(
-        start_station, dest_station, start_time, start_date)
+    # Step 1
+    booking_info = ask_booking_infomation()
 
-    # Step 3, 4
+    # Step 2
+    booking_info = ask_missing_infomation(booking_info)
+
+    # Step 3: 調整日期格式以便爬蟲使用, ex: '2025/02/25' -> '二月 25, 2025'
+    booking_info = convert_date_to_thsr_format(booking_info)
+
+    # Step 4
+    trains_info = booking_with_info(
+        start_station=booking_info['出發站'],
+        dest_station=booking_info['到達站'],
+        start_time=booking_info['出發時間'],
+        start_date=booking_info['出發日期'])
+    
+    # Step 5
     select_train_and_submit_booking(trains_info)
+
 
     time.sleep(10)
     driver.quit()
